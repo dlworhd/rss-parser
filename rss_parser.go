@@ -1,7 +1,6 @@
-package main
+package rss_parser
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -21,8 +20,41 @@ type Feed struct {
 	published   string
 }
 
-// Example
-g
+// func main() {
+// 	wg := new(sync.WaitGroup)
+// 	fp := gofeed.NewParser()
+
+// 	rssUrls := []string{
+// 		"https://toss.tech/rss.xml",
+// 	}
+
+// 	wg.Add(len(rssUrls))
+
+// 	var outerFeedArr [][]Feed
+
+// 	for range rssUrls {
+// 		outerFeedArr = append(outerFeedArr, nil)
+// 	}
+
+// 	for i, rss := range rssUrls {
+// 		ProceedFeed(fp, rss, wg, outerFeedArr, i)
+// 	}
+
+// 	for _, innerFeedArr := range outerFeedArr {
+// 		for _, feed := range innerFeedArr {
+// 			fmt.Println("GUID: ", feed.guid)
+// 			fmt.Println("Title: ", feed.title)
+// 			fmt.Println("Thumbnail: ", feed.thumbnail)
+// 			fmt.Println("Description : ", feed.description)
+// 			fmt.Println("Link: ", feed.link)
+// 			fmt.Println("Published: ", feed.published)
+// 			fmt.Printf("\n")
+// 		}
+// 	}
+
+// 	wg.Wait()
+
+// }
 
 func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup, outerFeedArr [][]Feed, outIndex int) {
 	innerWg := new(sync.WaitGroup)
