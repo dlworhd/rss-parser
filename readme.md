@@ -45,7 +45,7 @@ func main() {
 	}
 
 	for i, rss := range rssUrls {
-		ProceedFeed(fp, rss, wg, outerFeedArr, i)
+		rss_parser.ProceedFeed(fp, rss, wg, outerFeedArr, i)
 	}
 
 	for _, innerFeedArr := range outerFeedArr {
