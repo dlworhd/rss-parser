@@ -55,7 +55,6 @@ func main() {
 			fmt.Println("Description : ", feed.description)
 			fmt.Println("Link: ", feed.link)
 			fmt.Println("Published: ", feed.published)
-			fmt.Printf("\n")
 		}
 	}
 
