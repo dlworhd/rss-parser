@@ -64,7 +64,7 @@ func main() {
 }
 ```
 3. All feed information is stored in **outerFeedArr**, a two-dimensional array, and can be used as is.
-![image](https://github.com/dlworhd/rss-parser/assets/102597172/c1652e0c-01ca-4286-ac1f-9bbd7b7a8002)
+<img width=100% src="https://github.com/dlworhd/rss-parser/assets/102597172/b0ee14ce-2a61-4c0a-87bf-0a25317f67e1">
 
 
 # Result
