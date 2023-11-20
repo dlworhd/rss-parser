@@ -12,7 +12,19 @@ import (
 	"golang.org/x/net/html"
 )
 
-func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup) {
+type Feed struct {
+	guid        string
+	title       string
+	thumbnail   string
+	description string
+	link        string
+	published   string
+}
+
+// Example
+g
+
+func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup, outerFeedArr [][]Feed, outIndex int) {
 	innerWg := new(sync.WaitGroup)
 
 	defer wg.Done()
@@ -20,16 +32,20 @@ func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup) {
 	feeds, err := fp.ParseURL(rss)
 	if err != nil {
 		log.Printf("Error parsing URL %s: %v", rss, err)
-		return
+		panic(err)
 	}
 
 	innerWg.Add(len(feeds.Items))
 
+	var innerFeedArr []Feed
+
 	for _, feed := range feeds.Items {
-		go FeedItem(feed, innerWg)
+		go AddFeedItem(feed, innerWg, &innerFeedArr)
 	}
 
 	innerWg.Wait()
+	(outerFeedArr)[outIndex] = innerFeedArr
+
 }
 
 func FetchHtml(url string) (string, error) {
@@ -81,31 +97,27 @@ func ExtractThumbnail(htmlContent string) (string, error) {
 	return thumbnailURL, nil
 }
 
-func FeedItem(feed *gofeed.Item, innerWg *sync.WaitGroup) {
+func AddFeedItem(feed *gofeed.Item, innerWg *sync.WaitGroup, feedArr *[]Feed) {
 	defer innerWg.Done()
-	fg := feed.GUID
-	ft := feed.Title
-	fd := feed.Description
-	fl := feed.Link
-	fp := feed.Published
-
-	html, err := FetchHtml(fl)
+	html, err := FetchHtml(feed.Link)
 	if err != nil {
-		log.Printf("Error fetching HTML for %s: %v", fl, err)
-		return
+		log.Printf("Error fetching HTML for %s: %v", feed.Link, err)
+		panic(err)
+	}
+	if err != nil {
+		log.Printf("Error extracting thumbnail for %s: %v", feed.Link, err)
+		panic(err)
+	}
+	thumbnail, _ := ExtractThumbnail(html)
+
+	f := Feed{
+		guid:        feed.GUID,
+		title:       feed.Title,
+		thumbnail:   thumbnail,
+		description: feed.Description,
+		link:        feed.Link,
+		published:   feed.Published,
 	}
 
-	th, err := ExtractThumbnail(html)
-	if err != nil {
-		log.Printf("Error extracting thumbnail for %s: %v", fl, err)
-		return
-	}
-
-	fmt.Println("GUID: ", fg)
-	fmt.Println("Title: ", ft)
-	fmt.Println("Description: ", fd)
-	fmt.Println("Link: ", fl)
-	fmt.Println("Thumbnail: ", th)
-	fmt.Println("Date: ", fp)
-
+	*feedArr = append(*feedArr, f)
 }
