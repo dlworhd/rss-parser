@@ -2,10 +2,11 @@
 This is a package for RSS Parsing.
 
 # Description
-You can traverse the RSS feed array and access multiple elements.
-You can extract thumbnails using HTML Meta Data.
-It utilizes goroutines, which are management threads, and allows quick access to large amounts of data through parallel programming.
-You can easily extract the elements below from that package:
+Traverse the RSS feed array and access multiple elements.<br>
+Extract thumbnails using HTML Meta Data.<br>
+It utilizes goroutines, which are management threads, and allows quick access to large amounts of data through parallel programming.<br>
+
+Extract easily the elements below from that package:
 
 - GUID
 - Title
