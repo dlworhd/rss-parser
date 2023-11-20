@@ -14,6 +14,11 @@ Extract easily the elements below from that package:
 - Link
 - Published
 
+# Added
+- GoRoutine
+- Feed Struct 
+- Return 2D Array
+
 For additional information, please check <a href="https://github.com/mmcdole/gofeed">here</a>.
 
 # Dependencies
