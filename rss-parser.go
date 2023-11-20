@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "database/sql"
 	"fmt"
 	"io"
 	"log"
@@ -13,26 +12,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func main() {
-	wg := new(sync.WaitGroup)
-	fp := gofeed.NewParser()
-
-	rssUrls := []string{
-		"https://exmaple.com/feed/",
-		"https://example.com/rss.xml",
-	}
-
-	wg.Add(len(rssUrls))
-
-	for _, rss := range rssUrls {
-		go proceedFeed(fp, rss, wg)
-	}
-
-	wg.Wait()
-
-}
-
-func proceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup) {
+func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup) {
 	innerWg := new(sync.WaitGroup)
 
 	defer wg.Done()
@@ -46,13 +26,13 @@ func proceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup) {
 	innerWg.Add(len(feeds.Items))
 
 	for _, feed := range feeds.Items {
-		go feedItem(feed, innerWg)
+		go FeedItem(feed, innerWg)
 	}
 
 	innerWg.Wait()
 }
 
-func fetchHtml(url string) (string, error) {
+func FetchHtml(url string) (string, error) {
 	response, err := http.Get(url)
 
 	if err != nil {
@@ -70,7 +50,7 @@ func fetchHtml(url string) (string, error) {
 
 }
 
-func extractThumbnail(htmlContent string) (string, error) {
+func ExtractThumbnail(htmlContent string) (string, error) {
 	doc, err := html.Parse(strings.NewReader(htmlContent))
 	if err != nil {
 		return "", err
@@ -101,7 +81,7 @@ func extractThumbnail(htmlContent string) (string, error) {
 	return thumbnailURL, nil
 }
 
-func feedItem(feed *gofeed.Item, innerWg *sync.WaitGroup) {
+func FeedItem(feed *gofeed.Item, innerWg *sync.WaitGroup) {
 	defer innerWg.Done()
 	fg := feed.GUID
 	ft := feed.Title
@@ -109,13 +89,13 @@ func feedItem(feed *gofeed.Item, innerWg *sync.WaitGroup) {
 	fl := feed.Link
 	fp := feed.Published
 
-	html, err := fetchHtml(fl)
+	html, err := FetchHtml(fl)
 	if err != nil {
 		log.Printf("Error fetching HTML for %s: %v", fl, err)
 		return
 	}
 
-	th, err := extractThumbnail(html)
+	th, err := ExtractThumbnail(html)
 	if err != nil {
 		log.Printf("Error extracting thumbnail for %s: %v", fl, err)
 		return
@@ -127,5 +107,5 @@ func feedItem(feed *gofeed.Item, innerWg *sync.WaitGroup) {
 	fmt.Println("Link: ", fl)
 	fmt.Println("Thumbnail: ", th)
 	fmt.Println("Date: ", fp)
-	
+
 }
