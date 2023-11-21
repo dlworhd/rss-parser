@@ -14,7 +14,7 @@ Extract easily the elements below from that package:
 - Link
 - Published
 
-# Added
+# Applied
 - GoRoutine
 - Feed Struct 
 - Return 2D Array
