@@ -1,7 +1,6 @@
 package rss_parser
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -21,41 +20,41 @@ type Feed struct {
 	Published   string
 }
 
-func main() {
-	wg := new(sync.WaitGroup)
-	fp := gofeed.NewParser()
+// func main() {
+// 	wg := new(sync.WaitGroup)
+// 	fp := gofeed.NewParser()
 
-	rssUrls := []string{
-		"https://toss.tech/rss.xml",
-	}
+// 	rssUrls := []string{
+// 		"https://toss.tech/rss.xml",
+// 	}
 
-	wg.Add(len(rssUrls))
+// 	wg.Add(len(rssUrls))
 
-	var outerFeedArr [][]Feed
+// 	var outerFeedArr [][]Feed
 
-	for range rssUrls {
-		outerFeedArr = append(outerFeedArr, nil)
-	}
+// 	for range rssUrls {
+// 		outerFeedArr = append(outerFeedArr, nil)
+// 	}
 
-	for i, rss := range rssUrls {
-		ProceedFeed(fp, rss, wg, outerFeedArr, i)
-	}
+// 	for i, rss := range rssUrls {
+// 		ProceedFeed(fp, rss, wg, outerFeedArr, i)
+// 	}
 
-	for _, innerFeedArr := range outerFeedArr {
-		for _, feed := range innerFeedArr {
-			fmt.Println("GUID: ", feed.Guid)
-			fmt.Println("Title: ", feed.Title)
-			fmt.Println("Thumbnail: ", feed.Thumbnail)
-			fmt.Println("Description : ", feed.Description)
-			fmt.Println("Link: ", feed.Link)
-			fmt.Println("Published: ", feed.Published)
-			fmt.Printf("\n")
-		}
-	}
+// 	for _, innerFeedArr := range outerFeedArr {
+// 		for _, feed := range innerFeedArr {
+// 			fmt.Println("GUID: ", feed.Guid)
+// 			fmt.Println("Title: ", feed.Title)
+// 			fmt.Println("Thumbnail: ", feed.Thumbnail)
+// 			fmt.Println("Description : ", feed.Description)
+// 			fmt.Println("Link: ", feed.Link)
+// 			fmt.Println("Published: ", feed.Published)
+// 			fmt.Printf("\n")
+// 		}
+// 	}
 
-	wg.Wait()
+// 	wg.Wait()
 
-}
+// }
 
 func ProceedFeed(fp *gofeed.Parser, rss string, wg *sync.WaitGroup, outerFeedArr [][]Feed, outIndex int) {
 	innerWg := new(sync.WaitGroup)
@@ -153,4 +152,36 @@ func AddFeedItem(feed *gofeed.Item, innerWg *sync.WaitGroup, feedArr *[]Feed) {
 	}
 
 	*feedArr = append(*feedArr, f)
+}
+
+func RedisProceedFeed(lastGuid string, fp *gofeed.Parser, rss string, wg *sync.WaitGroup, outerFeedArr [][]Feed, outIndex int) string {
+	innerWg := new(sync.WaitGroup)
+
+	defer wg.Done()
+
+	feeds, err := fp.ParseURL(rss)
+	if err != nil {
+		log.Printf("Error parsing URL %s: %v", rss, err)
+		panic(err)
+	}
+
+	innerWg.Add(len(feeds.Items))
+
+	var innerFeedArr []Feed
+	var recentGuid string
+	for index, feed := range feeds.Items {
+		if index == 0 {
+			recentGuid = feed.GUID
+			log.Println(recentGuid)
+		}
+
+		if feed.GUID != lastGuid {
+			AddFeedItem(feed, innerWg, &innerFeedArr)
+		}
+	}
+
+	innerWg.Wait()
+	(outerFeedArr)[outIndex] = innerFeedArr
+
+	return recentGuid
 }
